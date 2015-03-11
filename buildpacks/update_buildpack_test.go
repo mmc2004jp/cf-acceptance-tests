@@ -278,7 +278,7 @@ EOF
 
 			updateBuildPack(BuildpackName, "2.0")
 			
-			Expect(Cf("push", appName, "-p", appPath).Wait(CF_PUSH_TIMEOUT)).To(Exit(0))
+			Expect(Cf("push", appName, "-p", appPath, "-m", "128M").Wait(CF_PUSH_TIMEOUT)).To(Exit(0))
 			
                         Eventually(func() string {
 			         return helpers.CurlAppRoot(appName)
