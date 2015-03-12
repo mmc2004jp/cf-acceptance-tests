@@ -314,6 +314,7 @@ EOF
 				
 		AfterEach(func() {
 	                deleteBuildPack(BuildpackName)
+			Expect(Cf("delete", appName, "-f").Wait(DEFAULT_TIMEOUT)).To(Exit(0))
 	        })	
 	})
 })
