@@ -117,14 +117,6 @@ EOF
 
 			appPath = tmpdir
 
-			tmpdir, err = ioutil.TempDir(os.TempDir(), "matching-buildpack")
-			Expect(err).ToNot(HaveOccurred())
-
-			buildpackPath = tmpdir
-			buildpackArchivePath = path.Join(buildpackPath, "buildpack.zip")
-
-			createZipArchive(buildpackArchivePath, "1.0")
-
 			_, err = os.Create(path.Join(appPath, matchingFilename(appName)))
 			Expect(err).ToNot(HaveOccurred())
 
@@ -315,6 +307,34 @@ EOF
 		AfterEach(func() {
 	                deleteBuildPack(BuildpackName)
 			Expect(Cf("delete", appName, "-f").Wait(DEFAULT_TIMEOUT)).To(Exit(0))
+
+			err := os.RemoveAll(appPath)
+			Expect(err).NotTo(HaveOccurred())
+	
+			err = os.RemoveAll(buildpackPath)
+			Expect(err).NotTo(HaveOccurred())
 	        })	
 	})
+
+        Context("when the buildpack is not detected", func() {
+
+                It("fails to push app", func() {
+                        push := Cf("push", appName, "-p", appPath, "-m", "128M").Wait(CF_PUSH_TIMEOUT)
+                        Expect(push).ToNot(Exit(0))
+                        Expect(push).To(Say("FAILED"))
+                        Expect(push).To(Say("An app was not successfully detected by any available buildpack"))
+
+                })
+
+
+                AfterEach(func() {
+                        Expect(Cf("delete", appName, "-f").Wait(DEFAULT_TIMEOUT)).To(Exit(0))
+
+        		err := os.RemoveAll(appPath)
+			Expect(err).NotTo(HaveOccurred())
+	
+			err = os.RemoveAll(buildpackPath)
+			Expect(err).NotTo(HaveOccurred())
+	        })
+        })
 })

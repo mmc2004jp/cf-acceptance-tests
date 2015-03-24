@@ -6,6 +6,7 @@ type Assets struct {
 	Node                     string
 	NodeWithProcfile         string
 	NodeWithWebsocket        string
+	SimpleJava               string
 	Java                     string
 	Golang                   string
 	Python                   string
@@ -14,6 +15,7 @@ type Assets struct {
 	AsyncServiceBroker       string
 	Php                      string
 	SecurityGroupBuildpack   string
+	CfIgnoreFiles		 string
 	Fuse                     string
 	RubySimple               string
 }
@@ -25,6 +27,7 @@ func NewAssets() Assets {
 		Node:              "../assets/node",
 		NodeWithProcfile:  "../assets/node-with-procfile",
 		NodeWithWebsocket: "../assets/node-with-websocket",
+		SimpleJava:        "../assets/simple-java",
 		Java:              "../assets/java",
 		Golang:            "../assets/golang",
 		Python:            "../assets/python",
@@ -33,6 +36,7 @@ func NewAssets() Assets {
 		AsyncServiceBroker:       "../assets/async_service_broker",
 		Php:                      "../assets/php",
 		SecurityGroupBuildpack: "../assets/security_group_buildpack.zip",
+		CfIgnoreFiles: "../assets/cfignore_files.zip",
 		Fuse:       "../assets/fuse-mount",
 		RubySimple: "../assets/ruby_simple",
 	}
