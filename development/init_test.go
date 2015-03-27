@@ -1,4 +1,4 @@
-package buildpacks
+package development
 
 import (
 	"testing"
@@ -11,16 +11,15 @@ import (
 )
 
 var (
-	DEFAULT_TIMEOUT   = 60 * time.Second
+	DEFAULT_TIMEOUT   = 30 * time.Second
 	CF_PUSH_TIMEOUT   = 2 * time.Minute
+	LONG_TIMEOUT   	  = 10 * time.Minute
 	LONG_CURL_TIMEOUT = 2 * time.Minute
-	LONG_TIMEOUT      = 10 * time.Minute
-
 )
 
 var context helpers.SuiteContext
 
-func TestApplications(t *testing.T) {
+func TestOperator(t *testing.T) {
 	RegisterFailHandler(Fail)
 
 	config := helpers.LoadConfig()
@@ -48,7 +47,7 @@ func TestApplications(t *testing.T) {
 		environment.Teardown()
 	})
 
-	componentName := "Buildpacks"
+	componentName := "Development"
 
 	rs := []Reporter{}
 

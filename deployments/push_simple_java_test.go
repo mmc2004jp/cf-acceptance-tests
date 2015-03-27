@@ -31,4 +31,13 @@ var _ = Describe("Deploy apps", func() {
 	})
 
 
+	It("returns the expected result by pushing a war file", func() {
+		Expect(cf.Cf("push", appName, "-p", assets.NewAssets().SimpleJavaWar, "-m", "512M").Wait(CF_PUSH_TIMEOUT)).To(Exit(0))
+
+		Eventually(func() string {
+			return helpers.CurlAppRoot(appName)
+		}, DEFAULT_TIMEOUT).Should(ContainSubstring("<p>Hello!</p>"))
+	})
+
+
 })

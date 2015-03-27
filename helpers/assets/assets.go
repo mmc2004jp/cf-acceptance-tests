@@ -7,6 +7,7 @@ type Assets struct {
 	NodeWithProcfile         string
 	NodeWithWebsocket        string
 	SimpleJava               string
+	SimpleJavaWar		 string
 	Java                     string
 	Golang                   string
 	Python                   string
@@ -28,6 +29,7 @@ func NewAssets() Assets {
 		NodeWithProcfile:  "../assets/node-with-procfile",
 		NodeWithWebsocket: "../assets/node-with-websocket",
 		SimpleJava:        "../assets/simple-java",
+		SimpleJavaWar:     "../assets/simple-java.war",
 		Java:              "../assets/java",
 		Golang:            "../assets/golang",
 		Python:            "../assets/python",

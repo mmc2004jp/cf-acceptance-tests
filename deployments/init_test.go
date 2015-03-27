@@ -14,6 +14,7 @@ var (
 	DEFAULT_TIMEOUT   = 30 * time.Second
 	CF_PUSH_TIMEOUT   = 2 * time.Minute
 	LONG_TIMEOUT   	  = 10 * time.Minute
+	LONG_TIMEOUT_20   = 20 * time.Minute
 	LONG_CURL_TIMEOUT = 2 * time.Minute
 )
 

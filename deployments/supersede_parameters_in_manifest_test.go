@@ -337,6 +337,30 @@ applications:
 
                 })
 
+	        It("supersedes disk quota by parameter -k in command line", func() {
+                        randVersion := "1.0"
+
+                        content := fmt.Sprintf(`
+---
+applications:
+- name: %s
+  disk_quota: 1G
+  buildpack: %s
+`, appName, BuildpackName)
+                        createDeployment(appPath, content)
+
+                        //specify timeout number. It will supersede timeout in manifest.yml
+                        push := Cf("push", appName, "-p", appPath, "-k", "900M").Wait(CF_PUSH_TIMEOUT)
+                        Expect(push).To(Exit(0))
+                        Expect(push).To(Say("Staging with Simple Buildpack"))
+                        Expect(push).To(Say("VERSION: " + randVersion))
+
+			app := Cf("app", appName).Wait(DEFAULT_TIMEOUT)
+			Expect(app).To(Exit(0))
+			Expect(app).To(Say("of 900M"))
+
+                })
+
 				
 			
 		AfterEach(func() {
