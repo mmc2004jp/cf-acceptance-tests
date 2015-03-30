@@ -12,7 +12,7 @@ import (
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
 	. "github.com/onsi/gomega/gexec"
-        "github.com/cloudfoundry-incubator/cf-test-helpers/helpers"
+	"github.com/cloudfoundry-incubator/cf-test-helpers/helpers"
 	archive_helpers "github.com/pivotal-golang/archiver/extractor/test_helper"
 )
 
@@ -32,25 +32,25 @@ var _ = Describe("Deploy Apps", func() {
 		return fmt.Sprintf("simple-buildpack-please-match-%s", appName)
 	}
 
-	createZipArchive := func(builpackArchivePath string, version string, timeout int64) { 
-			archive_helpers.CreateZipArchive(buildpackArchivePath, []archive_helpers.ArchiveFile{
-				{
-					Name: "bin/compile",
-					Body: fmt.Sprintf(`#!/usr/bin/env bash
+	createZipArchive := func(builpackArchivePath string, version string, timeout int64) {
+		archive_helpers.CreateZipArchive(buildpackArchivePath, []archive_helpers.ArchiveFile{
+			{
+				Name: "bin/compile",
+				Body: fmt.Sprintf(`#!/usr/bin/env bash
 
 sleep 1 # give loggregator time to start streaming the logs
 
 echo "Staging with Simple Buildpack"
-echo "VERSION: %s" 
+echo "VERSION: %s"
 echo "Sleeping %ds..."
-sleep %d 
+sleep %d
 echo "wake up...."
 
 `, version, timeout, timeout),
-				},
-				{
-					Name: "bin/detect",
-					Body: fmt.Sprintf(`#!/bin/bash
+			},
+			{
+				Name: "bin/detect",
+				Body: fmt.Sprintf(`#!/bin/bash
 
 if [ -f "${1}/%s" ]; then
   echo Simple
@@ -60,10 +60,10 @@ else
 fi
 
 `, matchingFilename(appName)),
-				},
-				{
-					Name: "bin/release",
-					Body: fmt.Sprintf( 
+			},
+			{
+				Name: "bin/release",
+				Body: fmt.Sprintf(
 `#!/usr/bin/env bash
 
 buildpackVersion="%s"
@@ -75,10 +75,10 @@ config_vars:
 default_process_types:
   web: while true; do { echo -e 'HTTP/1.1 200 OK\r\n';echo "hi from a simple admin buildpack $buildpackVersion."; echo "HOME:\$HOME"; echo "MEMORY_LIMIT:\$MEMORY_LIMIT"; echo "PORT:\$PORT";echo "PWD:\$PWD"; echo "TMPDIR:\$TMPDIR"; echo "USER:\$USER"; echo "VCAP_APP_HOST:\$VCAP_APP_HOST"; echo "VCAP_APPLICATION:\$VCAP_APPLICATION"; echo "VCAP_APP_PORT:\$VCAP_APP_PORT"; echo "VCAP_SERVICES:\$VCAP_SERVICES"; } | nc -l \$PORT; done
 EOF
-`, version), 
-				}, 
-			})
-}
+`, version),
+			},
+		})
+	}
 
 	createDeployment := func(appPath string, manifestContent string) {
 
@@ -98,11 +98,11 @@ EOF
 
 	}
 
-	createBuildPack := func(buildPackName string, version string, timeout int64) { 
-		
+	createBuildPack := func(buildPackName string, version string, timeout int64) {
+
 		AsUser(context.AdminUserContext(), func() {
-                        var err error
-                        var tmpdir string
+			var err error
+			var tmpdir string
 
 			tmpdir, err = ioutil.TempDir(os.TempDir(), "matching-buildpack")
 			Expect(err).ToNot(HaveOccurred())
@@ -119,18 +119,18 @@ EOF
 			Expect(createBuildpack).Should(Say("Uploading"))
 			Expect(createBuildpack).Should(Say("OK"))
 
-			//clean the temporary directory of the buildpack 
+			//clean the temporary directory of the buildpack
 			err = os.RemoveAll(buildpackPath)
-			Expect(err).ToNot(HaveOccurred())			
+			Expect(err).ToNot(HaveOccurred())
 		})
-        }
-	
-	deleteBuildPack := func(buildpackName string) { 
-		
+	}
+
+	deleteBuildPack := func(buildpackName string) {
+
 		AsUser(context.AdminUserContext(), func() {
 			Expect(Cf("delete-buildpack", buildpackName, "-f").Wait(DEFAULT_TIMEOUT)).To(Exit(0))
 		})
-        }
+		}
 
 
 	BeforeEach(func() {
@@ -142,7 +142,7 @@ EOF
 			Expect(err).ToNot(HaveOccurred())
 
 			appPath = tmpdir
-			//createBuildPack(BuildpackName, "1.0")	
+			//createBuildPack(BuildpackName, "1.0")
 
 		})
 	})
@@ -150,33 +150,33 @@ EOF
 
 	Context("when it prints environment variables", func() {
 
-               It("completes successfully", func() {
-                        randVersion := "1.0"
-                        createBuildPack(BuildpackName, randVersion, 1)
+		It("completes successfully", func() {
+			randVersion := "1.0"
+			createBuildPack(BuildpackName, randVersion, 1)
 
-                        content := fmt.Sprintf(`
+			content := fmt.Sprintf(`
 ---
 applications:
 - name: %s
 `, appName)
-                        createDeployment(appPath, content)
+			createDeployment(appPath, content)
 
-                        Expect(Cf("push", appName, "-p", appPath, "--no-start", "-m", "512M").Wait(CF_PUSH_TIMEOUT)).To(Exit(0))
+			Expect(Cf("push", appName, "-p", appPath, "--no-start", "-m", "512M").Wait(CF_PUSH_TIMEOUT)).To(Exit(0))
 
-	                serviceName := RandomName()
-        	        Expect(Cf("cups", serviceName).Wait(DEFAULT_TIMEOUT)).To(Exit(0))
+			serviceName := RandomName()
+			Expect(Cf("cups", serviceName).Wait(DEFAULT_TIMEOUT)).To(Exit(0))
 
-                	//bind service, VCAP_SERVICE will be applied
-	                Expect(Cf("bind-service", appName, serviceName).Wait(DEFAULT_TIMEOUT)).To(Exit(0))
+			//bind service, VCAP_SERVICE will be applied
+			Expect(Cf("bind-service", appName, serviceName).Wait(DEFAULT_TIMEOUT)).To(Exit(0))
 
-        	        Expect(Cf("start", appName).Wait(CF_PUSH_TIMEOUT)).To(Exit(0))
+			Expect(Cf("start", appName).Wait(CF_PUSH_TIMEOUT)).To(Exit(0))
 
 
 			var curlResponse string
 			Eventually(func() string {
 				curlResponse = helpers.CurlAppRoot(appName)
 				return curlResponse
-                        }, DEFAULT_TIMEOUT).Should(ContainSubstring("hi from a simple admin buildpack"))
+			}, DEFAULT_TIMEOUT).Should(ContainSubstring("hi from a simple admin buildpack"))
 
 			Expect(curlResponse).To(ContainSubstring("HOME:/home/vcap/app"))
 			Expect(curlResponse).To(ContainSubstring("MEMORY_LIMIT:512m"))
@@ -188,16 +188,66 @@ applications:
 			Expect(curlResponse).To(MatchRegexp("VCAP_APPLICATION:{.+}"))
 			Expect(curlResponse).To(MatchRegexp("VCAP_APP_PORT:[0-9]+"))
 			Expect(curlResponse).To(MatchRegexp("VCAP_SERVICES:{.+}"))
- 
-                })
 
-		
+		})
+
+
+		It("completes successfully with all optional attributes", func() {
+			randVersion := "1.0"
+			createBuildPack(BuildpackName, randVersion, 1)
+
+			content := fmt.Sprintf(`
+---
+applications:
+- name: %s
+`, appName)
+			createDeployment(appPath, content)
+
+			Expect(Cf("push", appName, "-p", appPath).Wait(CF_PUSH_TIMEOUT)).To(Exit(0))
+
+			var curlResponse string
+			Eventually(func() string {
+				curlResponse = helpers.CurlAppRoot(appName)
+				return curlResponse
+			}, DEFAULT_TIMEOUT).Should(ContainSubstring("hi from a simple admin buildpack"))
+
+			app := Cf("app", "app").Wait(DEFAULT_TIMEOUT)
+			Expect(app).To(Exit(0))
+			Expect(app).To(Say("instances: 1/1"))
+			Expect(app).To(Say("usage: 1G x 1 instances"))
+			Expect(app).To(Say(appName + helpers.LoadConfig().AppsDomain))
+			Expect(app).To(Say("#0"))
+			Expect(app).To(Say("of 1G"))
+			Expect(app).To(Say("of 1G"))
+
+			appEnv := Cf("env", appName).Wait(DEFAULT_TIMEOUT)
+			Expect(app).To(Exit(0))
+			Expect(appEnv.Out.Contents()).To(ContainSubstring(fmt.Sprintf("VCAP_SERVICES:{}")))
+
+		})
+
+		It("fails without mandotary attributes", func() {
+			randVersion := "1.0"
+			createBuildPack(BuildpackName, randVersion, 1)
+
+			content := fmt.Sprintf(`
+---
+applications:
+- memory: 512M
+`)
+			createDeployment(appPath, content)
+
+			push := Cf("push", appName, "-p", appPath).Wait(CF_PUSH_TIMEOUT)
+			Expect(push).To(Exit(1))
+			Expect(push).To(Say("Error reading manifest file:Expected applications to be a list"))
+
+		})
 		AfterEach(func() {
-	                deleteBuildPack(BuildpackName)
+			deleteBuildPack(BuildpackName)
 			Expect(Cf("delete", appName, "-f").Wait(DEFAULT_TIMEOUT)).To(Exit(0))
 			err := os.RemoveAll(appPath)
-			Expect(err).ToNot(HaveOccurred())			
-	        })	
+			Expect(err).ToNot(HaveOccurred())
+		})
 	})
 
 })
