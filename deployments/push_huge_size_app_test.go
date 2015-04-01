@@ -42,8 +42,8 @@ var _ = Describe("Deploy Apps", func() {
 	Context("when its size is huge", func() {
 
 		It("can complete successfully under 1G ", func() {
-			//create app with 100M
-			CreateDeployment(appPath, appName, 100*1024*1024)
+			//create app with 990M
+			CreateDeployment(appPath, appName, 990*1024*1024)
 			randVersion := "1.0"
 
 			push := Cf("push", appName, "-p", appPath).Wait(LONG_TIMEOUT)

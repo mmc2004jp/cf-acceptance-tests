@@ -62,7 +62,6 @@ applications:
 `, appName)
 			manifestFilePath = CreateManifest(appPath, appName, content)
 
-			//specify another buildpack. It will supersede the buildpack in manifest.yml
 			push := Cf("push", "-f", manifestFilePath).Wait(CF_PUSH_TIMEOUT)
 			Expect(push).To(Exit(0))
 			Expect(push).To(Say("Staging with Simple Buildpack"))
@@ -93,7 +92,6 @@ applications:
 
 		It("will not assign a route to the application", func() {
 
-			//specify another buildpack. It will supersede the buildpack in manifest.yml
 			push := Cf("push", appName, "-p", appPath, "--no-route").Wait(CF_PUSH_TIMEOUT)
 			Expect(push).To(Exit(0))
 			Expect(push).To(Say("Staging with Simple Buildpack"))
@@ -124,7 +122,6 @@ applications:
 		It("will remove the route from the app", func() {
 			randVersion := "1.0"
 
-			//specify another buildpack. It will supersede the buildpack in manifest.yml
 			push := Cf("push", appName, "-p", appPath).Wait(CF_PUSH_TIMEOUT)
 			Expect(push).To(Exit(0))
 			Expect(push).To(Say("Staging with Simple Buildpack"))

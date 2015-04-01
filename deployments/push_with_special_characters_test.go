@@ -53,7 +53,7 @@ var _ = Describe("Deploy Apps", func() {
 
 			appName = "app!@#$%^&*-name"
 			hostName := "special-host-name"
-			//specify another buildpack. It will supersede the buildpack in manifest.yml
+
 			push := Cf("push", appName, "-p", appPath, "-n", hostName).Wait(CF_PUSH_TIMEOUT)
 			Expect(push).To(Exit(0))
 			Expect(push).To(Say("Staging with Simple Buildpack"))
@@ -69,7 +69,7 @@ var _ = Describe("Deploy Apps", func() {
 		It("completes successfully without -n option", func() {
 
 			appName = "app!@#$%^&*-name"
-			//specify another buildpack. It will supersede the buildpack in manifest.yml
+
 			push := Cf("push", appName, "-p", appPath).Wait(CF_PUSH_TIMEOUT)
 			Expect(push).To(Exit(0))
 			Expect(push).To(Say("Staging with Simple Buildpack"))

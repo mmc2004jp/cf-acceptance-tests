@@ -90,7 +90,7 @@ applications:
 - name: %s
 `, appName)
 
-			manifestFilePath = CreateManifest(tmpdir, "manifest.yml", content)
+			manifestFilePath = CreateManifest(tmpdir, "hello_manifest.yml", content)
 
 			//specify manifest file in different path with appPaht
 			push := Cf("push", "-p", appPath, "-f", manifestFilePath).Wait(CF_PUSH_TIMEOUT)
@@ -126,7 +126,7 @@ applications:
 - name: %s
   path: ./abc
 `, appName)
-			manifestFilePath := CreateManifest(appPath, "manifest.yml", content)
+			manifestFilePath := CreateManifest(appPath, "hello_manifest.yml", content)
 
 			//specify manifest file in different path with appPaht
 			push := Cf("push", appName, "-f", manifestFilePath).Wait(CF_PUSH_TIMEOUT)
@@ -164,7 +164,7 @@ applications:
 - name: %s
   path: ./abc
 `, appName)
-			manifestFilePath := CreateManifest(tmpdir, "manifest.yml", content)
+			manifestFilePath := CreateManifest(tmpdir, "hello_manifest.yml", content)
 
 
 			//specify manifest file in different path with appPath
@@ -192,7 +192,7 @@ applications:
   path: %s
 `, appName, appPath)
 
-			manifestFilePath = CreateManifest(tmpdir, "manifest.yml", content)
+			manifestFilePath = CreateManifest(tmpdir, "hello_manifest.yml", content)
 
 			//specify manifest file in different path with appPaht
 			push := Cf("push", "-f", manifestFilePath).Wait(CF_PUSH_TIMEOUT)
@@ -233,7 +233,7 @@ applications:
   memory: 512M
 `, appName)
 
-			manifestFilePath = CreateManifest(appPath, "manifest.yml", content)
+			manifestFilePath = CreateManifest(appPath, "hello_manifest.yml", content)
 
 			//specify manifest file in different path with appPaht
 			push := Cf("push", "-p", appPath, "-f", manifestFilePath).Wait(CF_PUSH_TIMEOUT)
@@ -278,7 +278,7 @@ applications:
   - service2
 `, appName, javaAppPath)
 
-			manifestFilePath = CreateManifest(appPath, "manifest.yml", content)
+			manifestFilePath = CreateManifest(appPath, "hello_manifest.yml", content)
 
 			domainName = "example.com"
 

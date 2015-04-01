@@ -1,4 +1,4 @@
-package deployments
+package buildpacks
 
 import (
 	"fmt"
@@ -18,10 +18,8 @@ import (
 	. "github.com/cloudfoundry-incubator/cf-test-helpers/cf"
 	. "github.com/onsi/gomega"
 	"github.com/cloudfoundry-incubator/cf-test-helpers/runner"
-//	"github.com/cloudfoundry-incubator/cf-test-helpers/helpers"
-	archive_helpers "github.com/pivotal-golang/archiver/extractor/test_helper"	
+	archive_helpers "github.com/pivotal-golang/archiver/extractor/test_helper"
 )
-
 
 
 type AppResource struct {
@@ -147,7 +145,7 @@ func matchingFilename(appName string) string {
 		return fmt.Sprintf("stack-match-%s", appName)
 }
 
-func CreateZipArchive(buildpackArchivePath string, appName string, version string, timeout int64) { 
+func CreateZipArchive(buildpackArchivePath string, appName string, version string, timeout int64) {
 	archive_helpers.CreateZipArchive(buildpackArchivePath, []archive_helpers.ArchiveFile{
 			{
 				Name: "bin/compile",
@@ -156,9 +154,9 @@ func CreateZipArchive(buildpackArchivePath string, appName string, version strin
 					sleep 1 # give loggregator time to start streaming the logs
 
 					echo "Staging with Simple Buildpack"
-					echo "VERSION: %s" 
+					echo "VERSION: %s"
 					echo "Sleeping %ds..."
-					sleep %d 
+					sleep %d
 					echo "Wake up...."
 
 				`, version, timeout, timeout),
@@ -178,7 +176,7 @@ func CreateZipArchive(buildpackArchivePath string, appName string, version strin
 			},
 			{
 				Name: "bin/release",
-				Body: fmt.Sprintf( 
+				Body: fmt.Sprintf(
 `#!/usr/bin/env bash
 
 buildpackVersion="%s"
@@ -190,13 +188,13 @@ config_vars:
 default_process_types:
   web: while true; do { echo -e 'HTTP/1.1 200 OK\r\n';echo "hi from a simple admin buildpack $buildpackVersion";} | nc -l \$PORT; done
 EOF
-`, version), 
-			}, 
+`, version),
+			},
 	})
 }
 
 
-func CreateBuildPack(buildPackName string, appName string, version string, timeout int64) {		
+func CreateBuildPack(buildPackName string, appName string, version string, timeout int64, killingMyself bool) {
 	AsUser(context.AdminUserContext(), func() {
 		var err error
 		var tmpdir string
@@ -206,7 +204,11 @@ func CreateBuildPack(buildPackName string, appName string, version string, timeo
 
 		buildpackArchivePath := path.Join(tmpdir, "buildpack_" + version + ".zip")
 
-		CreateZipArchive(buildpackArchivePath, appName, version, timeout)
+		if killingMyself {
+			CreateZipArchiveWithKilling(buildpackArchivePath, appName, version, timeout)
+		} else {
+			CreateZipArchive(buildpackArchivePath, appName, version, timeout)	
+		}
 
 		createBuildpack := Cf("create-buildpack", buildPackName, buildpackArchivePath, "0").Wait(DEFAULT_TIMEOUT)
 		Expect(createBuildpack).Should(Exit(0))
@@ -217,14 +219,93 @@ func CreateBuildPack(buildPackName string, appName string, version string, timeo
 
 		//clean the temporary directory of the buildpack
 		err = os.RemoveAll(tmpdir)
-		Expect(err).ToNot(HaveOccurred())			
+		Expect(err).ToNot(HaveOccurred())
 	})
 }
+
+func UpdateBuildPack (buildPackName string, appName string, version string, timeout int64, killingMyself bool) {
+
+	AsUser(context.AdminUserContext(), func() {
+		var err error
+		var tmpdir string
+
+		tmpdir, err = ioutil.TempDir(os.TempDir(), "matching-buildpack")
+		Expect(err).ToNot(HaveOccurred())
+
+		buildpackArchivePath := path.Join(tmpdir, "buildpack_" + version +".zip")
+
 	
-func DeleteBuildPack(buildpackName string) { 
-		
+		if killingMyself {
+			CreateZipArchiveWithKilling(buildpackArchivePath, appName, version, timeout)
+		} else {
+			CreateZipArchive(buildpackArchivePath, appName, version, timeout)	
+		}
+
+
+		updateBuildpack := Cf("update-buildpack", buildPackName, "-p", buildpackArchivePath).Wait(DEFAULT_TIMEOUT)
+		Expect(updateBuildpack).Should(Exit(0))
+		Expect(updateBuildpack).Should(Say("Done uploading"))
+		Expect(updateBuildpack).Should(Say("OK"))
+	
+		//clean the temporary directory of the buildpack
+		err = os.RemoveAll(tmpdir)
+		Expect(err).ToNot(HaveOccurred())
+	})
+}
+
+func DeleteBuildPack(buildpackName string) {
+
 	AsUser(context.AdminUserContext(), func() {
 		Expect(Cf("delete-buildpack", buildpackName, "-f").Wait(DEFAULT_TIMEOUT)).To(Exit(0))
+	})
+}
+
+func CreateZipArchiveWithKilling(buildpackArchivePath string, appName string, version string, timeout int64) {
+	archive_helpers.CreateZipArchive(buildpackArchivePath, []archive_helpers.ArchiveFile{
+			{
+				Name: "bin/compile",
+				Body: fmt.Sprintf(`#!/usr/bin/env bash
+
+					sleep 1 # give loggregator time to start streaming the logs
+
+					echo "Staging with Simple Buildpack"
+					echo "VERSION: %s"
+					echo "Sleeping %ds..."
+					sleep %d
+					echo "Wake up...."
+
+				`, version, timeout, timeout),
+			},
+			{
+				Name: "bin/detect",
+				Body: fmt.Sprintf(`#!/bin/bash
+
+					if [ -f "${1}/%s" ]; then
+					  echo Simple
+					else
+					  echo no
+					  exit 1
+					fi
+
+				`, matchingFilename(appName)),
+			},
+			{
+				Name: "bin/release",
+				Body: fmt.Sprintf(
+`#!/usr/bin/env bash
+
+buildpackVersion="%s"
+startTime=$(date +%%s)
+cat <<EOF
+---
+config_vars:
+  PATH: bin:/usr/local/bin:/usr/bin:/bin
+  FROM_BUILD_PACK: "yes"
+default_process_types:
+  web: while true; do { echo -e 'HTTP/1.1 200 OK\r\n';echo "hi from a simple admin buildpack $buildpackVersion"; sleep 1; NOW=\$((\$(date +"%%s") - $startTime)); echo "\$NOW"; if [ \$NOW -ge 30 ]; then echo "killing myself"; kill \$$; fi;} | nc -l \$PORT; done
+EOF
+`, version),
+			},
 	})
 }
 
