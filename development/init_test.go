@@ -15,6 +15,7 @@ var (
 	CF_PUSH_TIMEOUT   = 2 * time.Minute
 	LONG_TIMEOUT   	  = 10 * time.Minute
 	LONG_CURL_TIMEOUT = 2 * time.Minute
+	CF_VERSION	  = 190
 )
 
 var context helpers.SuiteContext

@@ -24,7 +24,7 @@ var _ = Describe("Restart One Instance", func() {
 		Expect(cf.Cf("delete", appName, "-f").Wait(CF_PUSH_TIMEOUT)).To(Exit(0))
 	})
 
-	It("Starts one instance only and avoids downtime of entire app", func() {
+	It("Restarts one instance only and avoids downtime of entire app", func() {
 
 		Expect(cf.Cf("push", appName, "-p", assets.NewAssets().HelloWorld, "-i", "3").Wait(CF_PUSH_TIMEOUT)).To(Exit(0))
 

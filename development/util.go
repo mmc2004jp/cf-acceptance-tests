@@ -187,7 +187,7 @@ config_vars:
   PATH: bin:/usr/local/bin:/usr/bin:/bin
   FROM_BUILD_PACK: "yes"
 default_process_types:
-  web: while true; do { echo -e 'HTTP/1.1 200 OK\r\n';echo "hi from a simple admin buildpack $buildpackVersion"; echo "HOME:\$HOME"; echo "MEMORY_LIMIT:\$MEMORY_LIMIT"; echo "PORT:\$PORT";echo "PWD:\$PWD"; echo "TMPDIR:\$TMPDIR"; echo "USER:\$USER"; echo "VCAP_APP_HOST:\$VCAP_APP_HOST"; echo "VCAP_APPLICATION:\$VCAP_APPLICATION"; echo "VCAP_APP_PORT:\$VCAP_APP_PORT"; echo "VCAP_SERVICES:\$VCAP_SERVICES"; echo "CF_INSTANCE_ADDR:\$CF_INSTANCE_ADDR"; echo "CF_INSTANCE_INDEX:\$CF_INSTANCE_INDEX"; echo "CF_INSTANCE_IP:\$CF_INSTANCE_IP"; echo "CF_INSTANCE_PORT:\$CF_INSTANCE_PORT"; echo "CF_INSTANCE_PORTS:\$CF_INSTANCE_PORTS";} | nc -l \$PORT; done
+  web: while true; do { echo -e 'HTTP/1.1 200 OK\r\n';echo "hi from a simple admin buildpack $buildpackVersion"; echo "HOME:\$HOME"; echo "MEMORY_LIMIT:\$MEMORY_LIMIT"; echo "PORT:\$PORT";echo "PWD:\$PWD"; echo "TMPDIR:\$TMPDIR"; echo "USER:\$USER"; echo "VCAP_APP_HOST:\$VCAP_APP_HOST"; echo "VCAP_APPLICATION:\$VCAP_APPLICATION"; echo "VCAP_APP_PORT:\$VCAP_APP_PORT"; echo "VCAP_SERVICES:\$VCAP_SERVICES"; echo "CF_INSTANCE_ADDR:\$CF_INSTANCE_ADDR"; echo "CF_INSTANCE_INDEX:\$CF_INSTANCE_INDEX"; echo "CF_INSTANCE_IP:\$CF_INSTANCE_IP"; echo "CF_INSTANCE_PORT:\$CF_INSTANCE_PORT"; echo "CF_INSTANCE_PORTS:\$CF_INSTANCE_PORTS"; echo "MY_ENV:\$MY_ENV"; } | nc -l \$PORT; done
 EOF
 `, version), 
 			}, 
