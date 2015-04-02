@@ -43,6 +43,10 @@ var _ = Describe("Deploy Apps", func() {
 	AfterEach(func() {
 		DeleteBuildPack(BuildpackName)
 		Expect(Cf("delete", appName, "-f").Wait(DEFAULT_TIMEOUT)).To(Exit(0))
+
+		//delete orphaned routes to avoid failure
+		Expect(Cf("delete-orphaned-routes", "-f").Wait(DEFAULT_TIMEOUT)).To(Exit(0))
+
 		err := os.RemoveAll(appPath)
 		Expect(err).ToNot(HaveOccurred())
 	})
@@ -62,7 +66,7 @@ var _ = Describe("Deploy Apps", func() {
 			app := Cf("app", appName).Wait(DEFAULT_TIMEOUT)
 			Expect(app).To(Exit(0))
 			Expect(app).To(Say("urls: " + hostName))
-			Expect(app).To(Say("#0	 running"))
+			Expect(app.Out.Contents()).To(MatchRegexp("#0.+running"))
 
 		})
 
@@ -78,7 +82,7 @@ var _ = Describe("Deploy Apps", func() {
 			app := Cf("app", appName).Wait(DEFAULT_TIMEOUT)
 			Expect(app).To(Exit(0))
 			Expect(app).To(Say("urls: app-name"))
-			Expect(app).To(Say("#0	 running"))
+			Expect(app.Out.Contents()).To(MatchRegexp("#0.+running"))
 
 		})
 

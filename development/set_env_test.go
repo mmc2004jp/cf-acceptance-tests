@@ -90,7 +90,7 @@ applications:
 		Expect(Cf("push", appName, "-p", appPath, "--no-start", "-m", "512M").Wait(CF_PUSH_TIMEOUT)).To(Exit(0))
 
 		serviceName := RandomName()
-		Expect(Cf("cups", serviceName).Wait(DEFAULT_TIMEOUT)).To(Exit(0))
+		Expect(Cf("cups", serviceName, "-p", "'{\"username\":\"admin\",\"password\":\"pa55woRD\"}'").Wait(DEFAULT_TIMEOUT)).To(Exit(0))
 
 		//bind service, VCAP_SERVICE will be applied
 		Expect(Cf("bind-service", appName, serviceName).Wait(DEFAULT_TIMEOUT)).To(Exit(0))
@@ -103,7 +103,8 @@ applications:
 			return curlResponse
 		}, DEFAULT_TIMEOUT).Should(ContainSubstring("hi from a simple admin buildpack 1.0"))
 
-		Expect(curlResponse).To(MatchRegexp("VCAP_SERVICES:{.+}"))
+		Expect(curlResponse).To(MatchRegexp("VCAP_SERVICES:{.+\\\\password\\\\:\\\\pa55woRD\\\\.+}"))
+		Expect(curlResponse).To(MatchRegexp("VCAP_SERVICES:{.+\\\\username\\\\:\\\\admin\\\\.+}"))
 		Expect(curlResponse).To(MatchRegexp("MY_ENV:[^$]"))
 
 

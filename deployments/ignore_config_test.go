@@ -312,7 +312,6 @@ dir2/
 			Expect(files).NotTo(Say("RequestUri.jsp"))
 			Expect(files).To(Say("Ω.jsp"))
 
-
 		})
 
 		AfterEach(func() {
@@ -383,8 +382,8 @@ dir2/
 
 			files := Cf("files", appName, "app").Wait(DEFAULT_TIMEOUT)
 			Expect(files).To(Exit(0))
+			Expect(files).To(Say("some-file"))
 			Expect(files).NotTo(Say("manifest.yml"))
-			Expect(files).NotTo(Say("some-file"))
 			Expect(files).NotTo(Say(".gitignore"))
 			Expect(files).NotTo(Say(".git"))
 			Expect(files).NotTo(Say(".hg"))
@@ -395,7 +394,7 @@ dir2/
 			files = Cf("files", appName, "app/dir").Wait(DEFAULT_TIMEOUT)
 			Expect(files).To(Exit(0))
 			Expect(files).To(Say("manifest.yml"))
-			Expect(files).To(Say("some-file"))
+			Expect(files).NotTo(Say("some-file"))
 			Expect(files).NotTo(Say(".gitignore"))
 			Expect(files).NotTo(Say(".git"))
 			Expect(files).NotTo(Say(".hg"))
