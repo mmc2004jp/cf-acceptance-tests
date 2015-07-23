@@ -110,7 +110,12 @@ var _ = Describe("Admin Buildpacks", func() {
 
 			Eventually(func() string {
 				 return helpers.CurlAppRoot(appName)
-			}, DEFAULT_TIMEOUT).Should(ContainSubstring("hi from a simple admin buildpack 1.0"))
+			}, DEFAULT_TIMEOUT).Should(ContainSubstring("hi from a simple admin buildpack 1.0. I am instance 0."))
+
+			Eventually(func() string {
+				 return helpers.CurlAppRoot(appName)
+			}, DEFAULT_TIMEOUT).Should(ContainSubstring("hi from a simple admin buildpack 1.0. I am instance 1."))
+
 
 			UpdateBuildPack(BuildpackName, appName, "2.0", 0, false)
 
@@ -118,7 +123,12 @@ var _ = Describe("Admin Buildpacks", func() {
 
 			Eventually(func() string {
 				 return helpers.CurlAppRoot(appName)
-			}, DEFAULT_TIMEOUT).Should(ContainSubstring("hi from a simple admin buildpack 1.0"))
+			}, DEFAULT_TIMEOUT).Should(ContainSubstring("hi from a simple admin buildpack 1.0. I am instance 1."))
+
+			Eventually(func() string {
+				 return helpers.CurlAppRoot(appName)
+			}, DEFAULT_TIMEOUT).Should(ContainSubstring("hi from a simple admin buildpack 1.0. I am instance 0."))
+
 
 		})
 
