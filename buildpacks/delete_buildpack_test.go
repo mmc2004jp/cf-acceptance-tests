@@ -239,8 +239,9 @@ var _ = Describe("Admin Buildpacks", func() {
 			CreateDeployment(appPath, appName, 0)
 			push := Cf("push", appName, "-p", appPath, "-m", "128M").Wait(CF_PUSH_TIMEOUT)
 			Expect(push).ToNot(Exit(0))
-			Expect(push).To(Say("FAILED"))
 			Expect(push).To(Say("An app was not successfully detected by any available buildpack"))
+			Expect(push).To(Say("FAILED"))
+			Expect(push).To(Say("NoAppDetectedError"))
 
 		})
 
